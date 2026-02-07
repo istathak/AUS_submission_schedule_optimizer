@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Assignment API</title>
+</head>
+<body>
+    <h1>Schedule Assignment API</h1>
+    <p>Test the assignment endpoint by entering a schedule detail ID and day number</p>
+    
+    <form id="assignForm">
+        <div>
+            <label for="schedule_detail_id">Schedule Detail ID *</label>
+            <input 
+                type="number" 
+                id="schedule_detail_id" 
+                name="schedule_detail_id" 
+                placeholder="e.g., 8849241" 
+                required
+            >
+        </div>
+        
+        <div>
+            <label for="day_num">Day Number (1-7) *</label>
+            <input 
+                type="number" 
+                id="day_num" 
+                name="day_num" 
+                placeholder="1-7" 
+                min="1" 
+                max="7" 
+                required
+            >
+        </div>
+        
+        <button type="submit" id="submitBtn">Assign Cell</button>
+    </form>
+    
+    <div id="loading" style="display: none;">
+        <p>Processing request...</p>
+    </div>
+    
+    <div id="response" style="display: none;">
+        <h3 id="responseTitle"></h3>
+        <div id="responseContent"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('assignForm');
+        const responseDiv = document.getElementById('response');
+        const responseTitle = document.getElementById('responseTitle');
+        const responseContent = document.getElementById('responseContent');
+        const loadingDiv = document.getElementById('loading');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const scheduleDetailId = document.getElementById('schedule_detail_id').value;
+            const dayNum = document.getElementById('day_num').value;
+            
+            loadingDiv.style.display = 'block';
+            responseDiv.style.display = 'none';
+            submitBtn.disabled = true;
+            
+            try {
+                const url = `/assign?schedule_detail_id=${scheduleDetailId}&day_num=${dayNum}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                responseDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    if (data.status === 'filled') {
+                        responseTitle.textContent = 'Cell Already Filled';
+                    } else if (data.status === 'assigned') {
+                        responseTitle.textContent = 'Employee Assigned';
+                    } else if (data.status === 'unfilled') {
+                        responseTitle.textContent = 'No Assignment Found';
+                    } else {
+                        responseTitle.textContent = 'Response';
+                    }
+                } else {
+                    responseTitle.textContent = `Error (${response.status})`;
+                }
+                
+                responseContent.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                responseDiv.style.display = 'block';
+                responseTitle.textContent = 'Request Failed';
+                responseContent.innerHTML = '<pre>' + JSON.stringify({ error: error.message }, null, 2) + '</pre>';
+            }
+        });
+    </script>
+</body>
+</html>
