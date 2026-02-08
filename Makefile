@@ -10,7 +10,6 @@ help:
 	@echo "Available targets:"
 	@echo "  make setup     - Remove existing venv, create new one, and install dependencies"
 	@echo "  make clean     - Remove virtual environment"
-	@echo "  make run       - Run main.py"
 	@echo "  make run-api   - Start the API server"
 	@echo "  make test-api  - Run API test script"
 
@@ -28,10 +27,6 @@ clean:
 	@echo "Removing virtual environment..."
 	@rm -rf $(VENV_DIR)
 	@echo "✓ Virtual environment removed"
-
-run:
-	@echo "Running main.py..."
-	$(VENV_PYTHON) main.py
 
 run-api:
 	@echo "Starting API server..."
